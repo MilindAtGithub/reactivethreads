@@ -13,7 +13,11 @@ import java.util.function.Consumer;
 
 @SpringBootApplication
 public class ReactiveApplication {
-
+	/**
+	 * Main Method or application start point
+	 * @param args
+	 * @throws InterruptedException
+	 */
 	public static void main(String[] args) throws InterruptedException {
 		ApplicationContext ctx =SpringApplication.run(ReactiveApplication.class, args);
 
@@ -21,7 +25,7 @@ public class ReactiveApplication {
 
 		nonBlockingCall(ctx);
 
-		nonBlockingMainThread(ctx);
+		nonBlockingCallAndStartNewThread(ctx);
 
 		callBusinessWorkflowSerial(ctx);
 
@@ -30,83 +34,108 @@ public class ReactiveApplication {
 		((ConfigurableApplicationContext) ctx).close();
 
 	}
-
+	/**
+	 * This is the test for blocking call where the main/request thread will get blocked
+	 * @param ctx
+	 * @throws InterruptedException
+	 */
 	public static void blockingCall(ApplicationContext ctx) throws InterruptedException {
 
-		System.out.println("~~... Blocking Call Start: "+Thread.currentThread());
+		System.out.println("In ReactiveApplication.blockingCall: "+Thread.currentThread());
 		Integer t = ctx.getBean(ReactorComponent.class).nonBlockingSum(new Integer[] {4,78,4,676,3,45}).block();
-		System.out.println("~~... Print this after the call: "+Thread.currentThread());
-		System.out.println("~~... t = " + t);
+		System.out.println("Returning from ReactiveApplication.blockingCall result= " + t);
 	}
 
+	/**
+	 * This is the test for Non Blocking call where the request/main thread will not get blocked.
+	 * @param ctx
+	 * @throws InterruptedException
+	 */
 	public static void nonBlockingCall(ApplicationContext ctx) throws InterruptedException {
 
-		System.out.println("~~... NonBlocking Call Start: "+Thread.currentThread());
+		System.out.println("In ReactiveApplication.nonBlockingCall: "+Thread.currentThread());
 		Consumer<Integer> display = a -> {
-			System.out.println("##... Display from Consumer: "+ a + " Thread: "+Thread.currentThread());
+			System.out.println("In Consumer/Lambada result= "+ a + " and Thread: "+Thread.currentThread());
 		};
 		ctx.getBean(ReactorComponent.class).nonBlockingSum(new Integer[] {4,78,4,676,3,45}).subscribe(display);
-		System.out.println("~~... Print this after the call: "+Thread.currentThread());
+		System.out.println("Returning from ReactiveApplication.nonBlockingCall: "+Thread.currentThread());
 	}
 
-	public static void nonBlockingMainThread(ApplicationContext ctx) throws InterruptedException {
+	/**
+	 * This is the test for Non Blocking Call and starting the new threads on need basis
+	 * @param ctx
+	 * @throws InterruptedException
+	 */
+	public static void nonBlockingCallAndStartNewThread(ApplicationContext ctx) throws InterruptedException {
 
-		System.out.println("~~... nonBlockingMainThread Call Start: "+Thread.currentThread());
+		System.out.println("In ReactiveApplication.nonBlockingCallAndStartNewThread: "+Thread.currentThread());
 		Runnable r =  new Runnable() {
 			@Override
 			public void run() {
-				System.out.println("$$... In New Thread Run: "+Thread.currentThread());
-				Integer t = null;
+				System.out.println("In New Thread Run method: "+Thread.currentThread());
 				try {
 					Consumer<Integer> consumer = C -> print(C);
 					ctx.getBean(ReactorComponent.class).nonBlockingSum(
 							new Integer[] {400000,780,40,6760,30,3456450}).subscribe(consumer);
-					System.out.println("$$... In New Thread Run: "+Thread.currentThread() +" Doing Other work");
-					Runnable r1 = new Runnable() {
+				 	Runnable r1 = new Runnable() {
 						@Override
 						public void run() {
+							System.out.println("Started Another Thread: "+Thread.currentThread());
 							for(int i =0; i <5; i++){
-								System.out.println("%%... In Another New Thread:" +Thread.currentThread()+"-"+i);
+								i++;
 							}
+							System.out.println("End of Another Thread: "+Thread.currentThread());
 						}
 					};
 					new Thread(r1).start();
-					System.out.println("$$... In New Thread After Spawn Another Thread: "+Thread.currentThread());
+					System.out.println("End of New Thread: "+Thread.currentThread());
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
 		};
 		new Thread(r).start();
-		System.out.println("~~... Printing from the Main Thread: "+Thread.currentThread());
+		System.out.println("Returning from  ReactiveApplication.nonBlockingCallAndStartNewThread: "+Thread.currentThread());
 
 	}
 
-
+	/**
+	 * This is the test for reactive business flow where business requirement is sum of integers - min of integers - max of integers
+	 * This test will execute each step in serial and finally give the result out.
+	 * @param ctx
+	 * @throws InterruptedException
+	 */
 	public static  void callBusinessWorkflowSerial(ApplicationContext ctx) throws InterruptedException {
 
-		System.out.println("~~... In callBusinessWorkflowSerial Call : "+Thread.currentThread());
+		System.out.println("In ReactiveApplication.callBusinessWorkflowSerial: "+Thread.currentThread());
 		TestLambada<Temp> tempTestLambada = test -> {
-			System.out.println("&&... In Serial Business Workflow Result Lambada: "+Thread.currentThread());
-			System.out.println("&&... Business Result= " + test.getA());
+			System.out.println("Printing result in tempTestLambada= " + test.getA()+ " and Thread: "+Thread.currentThread());
 		};
 		ctx.getBean(BusinessService.class).businessService(new Integer[] {4,78,4,676,3,45},tempTestLambada);
-		System.out.println("~~... Printing Before Return from callBusinessWorkflowSerial: "+Thread.currentThread());
+		System.out.println("Returning from ReactiveApplication.callBusinessWorkflowSerial: "+Thread.currentThread());
 	}
 
+	/**
+	 * This is the test for reactive business flow where business requirement is sum of integers - min of integers - max of integers
+	 * This test will execute each step in parallel and finally give the result out.
+	 * @param ctx
+	 * @throws InterruptedException
+	 */
 	public static  void callBusinessWorkflowParallel(ApplicationContext ctx) throws InterruptedException {
 
-		System.out.println("~~... In callBusinessWorkflowParallel Call : "+Thread.currentThread());
+		System.out.println("In ReactiveApplication.callBusinessWorkflowParallel: "+Thread.currentThread());
 		TestLambada<Temp> tempTestLambada = test -> {
-			System.out.println("&&... In Parallel Business Workflow Result Lambada: "+Thread.currentThread());
-			System.out.println("&&... Parallel Business Result= " + test.getA());
+			System.out.println("In Parallel Business Workflow Lambada Result: "+test.getA()+" and Thread: "+Thread.currentThread());
 		};
 		ctx.getBean(BusinessService.class).businessService(new Integer[] {4,78,4,676,3,45},tempTestLambada);
-		System.out.println("~~... Printing Before Return from callBusinessWorkflowParallel: "+Thread.currentThread());
+		System.out.println("Returning from ReactiveApplication.callBusinessWorkflowParallel: "+Thread.currentThread());
 	}
-
+	/**
+	 * Method for printing purpose
+	 * @param a
+	 */
 	public static void  print(Integer a){
-		System.out.println("^^... a = " + a+ " Thread: "+Thread.currentThread());
+		System.out.println("In Consumer/Lambada Result= " + a+ " Thread: "+Thread.currentThread());
 	}
 
 }

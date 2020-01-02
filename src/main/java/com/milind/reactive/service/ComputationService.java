@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class ComputationService {
@@ -14,32 +13,33 @@ public class ComputationService {
      * @param arr
      * @return
      */
-    public Integer getSum(Integer arr [] )  {
-        System.out.println("@@... In Addition Service: "+Thread.currentThread());
+    public Integer getSum(final Integer arr[]) {
+        System.out.println("In ComputationService.getSum: " + Thread.currentThread());
         Integer count = 0;
-        for(int i =0; i< arr.length; i++){
-            count+= arr[i];
+        for (int i = 0; i < arr.length; i++) {
+            count += arr[i];
         }
+        System.out.println("Returning from ComputationService.getSum: " + Thread.currentThread());
         return count;
     }
 
     /**
      * This will return Min Value from Integer Array
+     * 
      * @param arr
      * @return
      */
-    public Integer getMin(Integer arr[]){
-        System.out.println("!!... In Get Minimum Service: "+Thread.currentThread());
+    public Integer getMin(final Integer arr[]) {
         return Arrays.stream(arr).min(Comparator.comparing(Integer::intValue)).get();
     }
 
     /**
      * This will return Max Value from Integer Array
+     * 
      * @param arr
      * @return
      */
-    public Integer getMax(Integer arr[]){
-        System.out.println("!!... In Get Maximum Service: "+Thread.currentThread());
+    public Integer getMax(final Integer arr[]) {
         return Arrays.stream(arr).max(Comparator.comparing(Integer::intValue)).get();
     }
 }

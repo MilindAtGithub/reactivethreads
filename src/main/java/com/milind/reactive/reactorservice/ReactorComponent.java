@@ -24,7 +24,7 @@ public class ReactorComponent {
      * @return
      * @throws InterruptedException
      */
-    public Integer blockingSum( Integer arr[]) throws InterruptedException {
+    public Integer blockingSum( final Integer arr[]) throws InterruptedException {
 
         return computationService.getSum(arr);
     }
@@ -35,11 +35,11 @@ public class ReactorComponent {
      * @return
      * @throws InterruptedException
      */
-    public Mono<Integer> nonBlockingSum(Integer arr[]) throws InterruptedException {
+    public Mono<Integer> nonBlockingSum(final Integer arr[]) throws InterruptedException {
 
-        System.out.println("!!... In Non Block Addition: "+Thread.currentThread());
+        System.out.println("In ReactorComponent.nonBlockingSum: "+Thread.currentThread());
         Mono<Integer> m = Mono.fromSupplier(() -> this.computationService.getSum(arr)).subscribeOn(this.scheduler);
-        System.out.println("!!... Returning for Non Block Addition: "+Thread.currentThread());
+        System.out.println("Returning form ReactorComponent.nonBlockingSum: "+Thread.currentThread());
         return m;
     }
 
@@ -48,10 +48,10 @@ public class ReactorComponent {
      * @param arr
      * @return
      */
-    public  Mono<Integer> getMin(Integer arr[]){
-        System.out.println("In Non Block Get Min : "+Thread.currentThread());
+    public  Mono<Integer> getMin(final Integer arr[]){
+        System.out.println("In ReactorComponent.getMin : "+Thread.currentThread());
         Mono<Integer> m = Mono.fromSupplier(() -> this.computationService.getMin(arr)).subscribeOn(this.scheduler);
-        System.out.println("Returning for the get Min Call: "+Thread.currentThread());
+        System.out.println("Returning from ReactorComponent.getMin: "+Thread.currentThread());
         return m;
     }
 
@@ -60,10 +60,10 @@ public class ReactorComponent {
      * @param arr
      * @return
      */
-    public  Mono<Integer> getMax(Integer arr[]){
-        System.out.println("In Non Block Get Max : "+Thread.currentThread());
+    public  Mono<Integer> getMax(final Integer arr[]){
+        System.out.println("In ReactorComponent.getMax : "+Thread.currentThread());
         Mono<Integer> m = Mono.fromSupplier(() -> this.computationService.getMax(arr)).subscribeOn(this.scheduler);
-        System.out.println("Returning for the get Max Call: "+Thread.currentThread());
+        System.out.println("Returning from ReactorComponent.getMax: "+Thread.currentThread());
         return m;
     }
 }
