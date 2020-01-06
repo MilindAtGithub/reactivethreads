@@ -12,14 +12,16 @@ import com.milind.reactive.reactorservice.ReactorComponent;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
-
-@SpringBootApplication
+@Configuration
+@ComponentScan(basePackages = "com.milind.reactive")
 public class ReactiveWebServer {
 
     public static void main(String args[]) throws Exception {
-        ApplicationContext ctx = SpringApplication.run(ReactiveWebServer.class, args);
-
+        ApplicationContext ctx = new AnnotationConfigApplicationContext(ReactiveWebServer.class);
         startServer(ctx);
     }
 
