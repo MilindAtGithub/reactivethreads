@@ -30,6 +30,7 @@ public class ComputationService {
      * @return
      */
     public Integer getMin(final Integer arr[]) {
+        System.out.println("In ComputationService.getMin: " + Thread.currentThread());
         return Arrays.stream(arr).min(Comparator.comparing(Integer::intValue)).get();
     }
 
@@ -40,6 +41,7 @@ public class ComputationService {
      * @return
      */
     public Integer getMax(final Integer arr[]) {
+        System.out.println("In ComputationService.getMax: " + Thread.currentThread());
         return Arrays.stream(arr).max(Comparator.comparing(Integer::intValue)).get();
     }
 }
