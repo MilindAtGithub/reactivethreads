@@ -77,6 +77,7 @@ public class ReactiveApplication {
 					Consumer<Integer> consumer = C -> print(C);
 					ctx.getBean(ReactorComponent.class).nonBlockingSum(
 							new Integer[] {400000,780,40,6760,30,3456450}).subscribe(consumer);
+
 				 	Runnable r1 = new Runnable() {
 						@Override
 						public void run() {
@@ -127,7 +128,7 @@ public class ReactiveApplication {
 		TestLambada<Temp> tempTestLambada = test -> {
 			System.out.println("In Parallel Business Workflow Lambada Result: "+test.getA()+" and Thread: "+Thread.currentThread());
 		};
-		ctx.getBean(BusinessService.class).businessService(new Integer[] {4,78,4,676,3,45},tempTestLambada);
+		ctx.getBean(BusinessService.class).busServiceInParallel(new Integer[] {4,78,4,676,3,45},tempTestLambada);
 		System.out.println("Returning from ReactiveApplication.callBusinessWorkflowParallel: "+Thread.currentThread());
 	}
 	/**
